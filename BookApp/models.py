@@ -126,9 +126,11 @@ class Order(models.Model):
     user=models.EmailField(default=None,null=True,)
     book=models.ForeignKey(Book,on_delete=models.SET_NULL,blank=True,null=True)
     order_status=models.CharField(max_length=100,choices=ORDER_STATUS,default="Order Received")
+    quantity=models.PositiveBigIntegerField(default=1)
+    total=models.IntegerField(default=None)
     date=models.DateField(auto_now_add=True,null=True)
     def __str__(self):
-        return self.book.title
+        return self.user
 
 
 

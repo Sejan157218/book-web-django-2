@@ -23,7 +23,6 @@ def baseData(request):
 def cartData(request):
      quantity=''
      if request.user.id !=None:
-          print(request.user)
           cartProduct=CartProduct.objects.filter(user=request.user.email)
           quantity=sum(item.quantity for item in cartProduct)
      else:
@@ -85,7 +84,7 @@ def index(request):
                messages.success(request,'Successfully add to cart')
           return redirect('bookapp:details',pk=data.slug)
 
-
+@login_required(login_url='/account/login/')
 def Cart(request):
      cartProduct=CartProduct.objects.filter(user=request.user.email)
      item=len(cartProduct)
@@ -120,17 +119,18 @@ def deleteItem(request,pk):
      return redirect('bookapp:cart')
 
 
-
+@login_required(login_url='/account/login/')
 def OrderItem(request):
      cartProduct=CartProduct.objects.filter(user=request.user.email)
      if cartProduct:
-          print('lll')
           for i in cartProduct:
-               print(i.book_id,'i.book')
-               order=Order.objects.create(book_id=i.book_id)
+               order=Order.objects.create(user=request.user.email,book_id=i.book_id,quantity=i.quantity,total=i.total)
                order.save()
           cartProduct.delete()
-     return redirect('bookapp:myorder')
+          messages.success(request,'Order Successfully')
+     else:
+          messages.error(request,'No Cart To Order!')
+     return redirect('bookapp:cart')
 
 
 
