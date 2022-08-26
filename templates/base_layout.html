@@ -98,7 +98,7 @@
                     </form>
                 </ul>
                 <ul class="navbar-nav ml-auto mt-3 mt-lg-0 align-items-center">
-                    <i class="fas fa-shopping-cart"></i>
+                    <a href="{% url 'bookapp:cart' %}"><i class="fas fa-shopping-cart"></i><span class="quantity-nav">{{quantity}}</span></a>
 
                     {% if user.is_authenticated %}
                     <li class="nav-item px-lg-2"> 
@@ -107,6 +107,11 @@
                                     <button style="background: none !important;" class="border-0" type="submit">Log Out</button>
                                 </form>
                             </a>
+                    </li>
+                    <li class="nav-item px-lg-2">
+                        <a href="{% url 'bookapp:myorder' %}">
+                            My Order
+                        </a>
                     </li>
 
       

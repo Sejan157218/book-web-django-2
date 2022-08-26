@@ -1,0 +1,42 @@
+{% extends 'base_layout.html' %}
+
+{% block content %}
+<section>
+    <div class="container my-5">
+        <div class="cards my-5">
+            <div class="row">
+                <div class="col-md-8 cart">
+                
+                    {% for order in orderProduct %}
+                    <div class="row border-top border-bottom">
+                        <div class="row main align-items-center">
+                            <div class="col-2"><img class="img-fluid" src="../media/{{order.book.image}}" /></div>
+                            <div class="col">
+                          
+                                <div class="row">{{order.book.title}}</div>
+                            </div>
+                            <div class="col cart-a">
+                              <a href="#" class="border mx-2 px-2">{{order.quantity}}</a>
+                            </div>
+                            <div class="col-5">
+                                <div class="d-flex">
+                                    <p class="me-3">
+                                        $ {{order.book.discount}} 
+                                    </p>
+                                    <!-- <p>Total = $ {{cart.total}}</p> -->
+                                    
+                                    <a class="ms-5" href=""><span class="close">&#10005;</span></a></div>
+                                </div>
+                                
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                 
+                    </div>
+                </div>
+            </div>
+
+        </div>
+</section>
+{% endblock %}

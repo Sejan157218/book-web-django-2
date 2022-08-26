@@ -1,0 +1,78 @@
+{% extends 'base_layout.html' %}
+
+{% block content %}
+<section>
+
+    <div class="container mt-5 mb-5">
+        <div class="row d-flex justify-content-center">
+            <div class="col-md-10">
+                <div class="card-details">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="images p-3">
+                                <div class="text-center p-4"> <img id="main-image" src="../../media/{{data.image}}"
+                                        width="250" /> </div>
+
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="product p-4">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center"> </div>
+                                </div>
+                                <div class="mt-4 mb-3">
+
+                                    <h5 class="text-uppercase"> {{data.title}}</h5>
+                                    <h6 class="text-uppercase">By {{data.author}}</h6>
+                                    <div class="price d-flex flex-row align-items-center">
+                                        <span>
+                                            {% if not data.discount is None %}
+
+                                            <div class="d-flex">
+                                                <div class="price text-decoration-line-through pe-2">$
+                                                    {{data.market_price}}
+                                                </div>
+
+                                                <div class="price pe-4">${{data.discount}}</div>
+                                                <div class="price">{{data.discount_percent}} % OFF</div>
+                                            </div>
+                                            {% else %}
+                                            <div class="price">$ {{data.market_price}}</div>
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="about">
+
+                                {{data.description}}
+                            </p>
+
+                            <div class="cart mt-4 align-items-center"> <button
+                                    class="btn btn-danger text-uppercase mr-2 px-4">
+                                    <form action="{% url 'bookapp:cartproducts'%}" method="post">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="book-id" value="{{data.id}}">
+
+                                        <br>
+                                        <input type="submit" value="Add to cart">
+                                    </form>
+
+                                </button>
+                                {% if messages %}
+                                <ul class="messages">
+                                    {% for message in messages %}
+                                    <li{% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+                                        {% endfor %}
+                                </ul>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+</section>
+
+{% endblock %}

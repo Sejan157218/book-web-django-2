@@ -1,12 +1,26 @@
 from django.db import models
 import datetime
 from django.utils.translation import gettext as _
-# Create your models here.
+from django.contrib.auth.models import User
+from django.conf import settings
+import math
+
+
+
+class Profile(models.Model):
+    user=models.OneToOneField(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
+    image = models.ImageField(upload_to="profile/",blank=True,null=True)
+    def __str__(self):
+        return self.user.username
+
+
+
 class Category(models.Model):
     title=models.CharField(max_length=200)
     date=models.DateField(auto_now_add=True)
     def __str__(self) :
         return self.title
+
 
 
 class Author(models.Model):
@@ -45,7 +59,7 @@ class Book(models.Model):
 
 
     def snippet(self):
-        return self.category.title
+        return self.title
 
 
     @property
@@ -72,4 +86,49 @@ class Book(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class CartProduct(models.Model):
+    user=models.EmailField(default=None,null=True,)
+    book=models.ForeignKey(Book,on_delete=models.SET_NULL,blank=True,null=True)
+    product=models.PositiveBigIntegerField()
+    quantity=models.PositiveBigIntegerField(default=1)
+    date=models.DateField(auto_now_add=True)
+    def __str__(self):
+        return f"customer=={self.user}==Product=={self.book.title}"
+
+
+    @property
+    def total(self):
+        total=0;
+        if self.book.discount > 0:
+           total=(math.ceil(self.book.market_price * self.quantity))
+
+        else:
+            total=(math.ceil(self.book.market_price * self.quantity))
+        return total;
+
+
+
+
+
+ORDER_STATUS={
+    ("Order Received","Order Received"),
+    ("Order Processing","Order Processing"),
+    ("On the way","On the way"),
+    ("Order Completed","Order Completed"),
+    ("Order Canceled","Order Canceled"),
+}
+
+
+
+class Order(models.Model):
+    user=models.EmailField(default=None,null=True,)
+    book=models.ForeignKey(Book,on_delete=models.SET_NULL,blank=True,null=True)
+    order_status=models.CharField(max_length=100,choices=ORDER_STATUS,default="Order Received")
+    date=models.DateField(auto_now_add=True,null=True)
+    def __str__(self):
+        return self.book.title
+
+
 
