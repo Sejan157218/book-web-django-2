@@ -67,6 +67,8 @@ class Book(models.Model):
         if not self.discount_percent is None and self.discount_percent  > 0:
             discounted_price = self.market_price - self.market_price * self.discount_percent  / 100
             return round(discounted_price, 2)
+        else:
+            return self.market_price
 
 
 

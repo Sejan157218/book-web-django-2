@@ -9,6 +9,8 @@ from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.contrib import messages
+from django.core.paginator import Paginator
+
 
 
 
@@ -43,26 +45,54 @@ def Home(request):
 
 
 def Search(request):
-     if 'search-text' in request.GET:
-        book_name =  request.GET['search-text']
-     #    data=Book.objects.filter(author__name=book_name) or Book.objects.filter(category__title=book_name) or Book.objects.filter(title=book_name)
-        data=Book.objects.annotate(search=SearchVector('category__title', 'author__name','title')).filter(Q(search=book_name) | Q(search__icontains=book_name))
-   
-     return render(request, 'search.html',{'data':data})
+     book_name =  request.GET['search-text']
+    
+     # data=Book.objects.filter(author__name=book_name) or Book.objects.filter(category__title=book_name) or Book.objects.filter(title=book_name)
+     # data_list=Book.objects.annotate(search=SearchVector('category__title', 'author__name','title')).filter(Q(search=book_name) | Q(search__icontains=book_name))
+     search = Book.objects.annotate(search=SearchVector('category__title', 'author__name','title')).filter(Q(search=book_name) | Q(search__icontains=book_name)).distinct()
+     priced =  request.POST.get('price')
+     category =  request.POST.get('category')
+     author =  request.POST.get('author')
+     if author and author !='null':
+          search = search.filter(author__id=author)
+     elif category and category !='null':
+          search = search.filter(category__title=category)
+     elif priced and priced !='null':
+          search = search.order_by(priced)
+     data =Paginator(search,2)
+
+     pageRequest=request.GET.get('page')
+     pageData=data.get_page(pageRequest)
+        
+     return render(request, 'search.html',
+     {
+          'data':data,
+          'pageData':pageData,
+          'searchText':book_name,
+     }
+     )
 
 
 
 def CategorySearch(request,pk):
-     data=Book.objects.filter(category__title=pk).order_by('date')
-     return render(request, 'search.html',{'data':data})
+     datas=Book.objects.filter(category__title=pk).order_by('date')
+     data =Paginator(datas,1)
+
+     pageRequest=request.GET.get('page')
+     pageData=data.get_page(pageRequest)
+     return render(request, 'search.html',{'pageData':pageData})
 
 
 
 def AuthorSearch(request,pk):
-     data=Book.objects.filter(author__name=pk).order_by('date')
-     return render(request, 'search.html',{'data':data})
+     datas=Book.objects.filter(author__name=pk).order_by('date')
+     data =Paginator(datas,1)
 
-@login_required(login_url='/account/login/')
+     pageRequest=request.GET.get('page')
+     pageData=data.get_page(pageRequest)
+     return render(request, 'search.html',{'pageData':pageData})
+
+@login_required(login_url='/accounts/login/')
 def BookDetails(request,pk):
      data=Book.objects.get(slug=pk)
 
@@ -84,7 +114,7 @@ def index(request):
                messages.success(request,'Successfully add to cart')
           return redirect('bookapp:details',pk=data.slug)
 
-@login_required(login_url='/account/login/')
+@login_required(login_url='/accounts/login/')
 def Cart(request):
      cartProduct=CartProduct.objects.filter(user=request.user.email)
      item=len(cartProduct)
@@ -119,7 +149,7 @@ def deleteItem(request,pk):
      return redirect('bookapp:cart')
 
 
-@login_required(login_url='/account/login/')
+@login_required(login_url='/accounts/login/')
 def OrderItem(request):
      cartProduct=CartProduct.objects.filter(user=request.user.email)
      if cartProduct:
