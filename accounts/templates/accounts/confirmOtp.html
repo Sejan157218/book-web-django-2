@@ -1,0 +1,26 @@
+{% extends 'base_layout.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-center" >
+    <div class="login-content">
+        <h1 class="text-center">Confirm OTP</h1>
+    
+        <form class="sign-up" action="{% url 'accounts:verifyOtp' %}" method="post">
+            {% csrf_token %}
+            <input  type="number" name="confirm-otp">
+            <input  type="hidden" name="phone" value={{phone}}>
+            {% if request.GET.next %}
+            <input  type="hidden" name="next" value="{{request.GET.next}}">
+            {% endif %}
+            <input class="mt-3" type="submit" value="Confirm OTP">
+        </form>
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+                {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

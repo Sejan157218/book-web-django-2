@@ -47,11 +47,15 @@
 #         logout(request)
 #         return redirect('bookapp:home')
 
+import profile
 from django.contrib.auth import views as auth_views
 from django.contrib.auth import logout
 from .forms import LoginForm, RegisterForm
 from django.shortcuts import redirect, render
 from django.contrib.auth import login,logout
+from BookApp.models import Profile
+from django.contrib import messages
+import random
 
 
 
@@ -70,8 +74,14 @@ def signupPage(request):
     form=RegisterForm
     if request.method=='POST':
         form=RegisterForm(request.POST)
+        phone = request.POST.get("phone")
+        profile=Profile.objects.all()
+        print(phone)
+        print('profile',profile)
         if form.is_valid():
             user=form.save()
+            profile=Profile.objects.create(user=user,phone=phone)
+            profile.save()
             login(request,user)
             return redirect('bookapp:home')
     else:
@@ -79,6 +89,43 @@ def signupPage(request):
     return render(request,'accounts/signup.html',{'form':form})   
 
 
+def OtpPhone(request):
+    return render(request,'accounts/loginOtp.html')  
+
+def sentOtp(request):
+    if request.method=='POST':
+        phone=request.POST.get('phone')
+        user=Profile.objects.filter(phone=phone)
+        if user:
+            otp=str(random.randint(1000,9999))
+            profile=Profile.objects.get(phone=phone)
+            profile.otp=otp
+            profile.save()
+            return redirect('accounts:confirmOtp',pk=phone)
+        else:
+            messages.error(request,"Phone Number Does't exist")
+    return redirect('accounts:otp-phone-number')
+
+def confirmOtp(request,pk):
+    return render(request,'accounts/confirmOtp.html',{'phone':pk}) 
+
+
+def VerifyOtp(request):
+    if request.method=='POST':
+        phone=request.POST.get('phone')
+        otp=int(request.POST.get('confirm-otp'))
+        user=Profile.objects.get(phone=phone)
+      
+        if int(otp)==user.otp:
+            print('phone',phone)
+            login(request,user.user)
+            if 'next' in request.POST:
+                 return redirect(request.POST.get('next'))
+            else:
+                return redirect('bookapp:home')  
+       
+    messages.error(request,"OTP Does't Mach")
+    return render(request,'accounts/confirmOtp.html',{'phone':phone})  
 
 
 def logout_view(request):

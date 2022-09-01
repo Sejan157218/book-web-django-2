@@ -1,0 +1,25 @@
+{% extends 'base_layout.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-center" >
+    <div class="login-content">
+        <h1 class="text-center">Give Your Phone Number</h1>
+    
+        <form class="sign-up" action="{% url 'accounts:sentOtp' %}" method="post">
+            {% csrf_token %}
+            <input  type="tel" name="phone">
+            {% if request.GET.next %}
+            <input  type="hidden" name="next" value="{{request.GET.next}}">
+            {% endif %}
+            <input class="mt-3" type="submit" value="Sent OTP">
+        </form>
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</li>
+                {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

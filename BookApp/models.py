@@ -1,3 +1,4 @@
+from email.policy import default
 from django.db import models
 import datetime
 from django.utils.translation import gettext as _
@@ -10,6 +11,9 @@ import math
 class Profile(models.Model):
     user=models.OneToOneField(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
     image = models.ImageField(upload_to="profile/",blank=True,null=True)
+    phone = models.CharField(max_length=60,
+                             null=True, blank=True,unique=True)
+    otp= models.IntegerField(default=None,null=True, blank=True,)
     def __str__(self):
         return self.user.username
 
